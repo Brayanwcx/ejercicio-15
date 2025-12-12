@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flash Cards - JavaScript</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .progress-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 10px;
+        }
+        
+        .progress-bar {
+            flex-grow: 1;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            margin: 0 15px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #4CAF50;
+            width: 25%;
+            transition: width 0.3s ease;
+        }
+        
+        .flashcard-container {
+            perspective: 1000px;
+            height: 300px;
+            margin-bottom: 30px;
+        }
+        
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+        }
+        
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .flashcard-front {
+            background: white;
+            border: 2px solid #e0e0e0;
+        }
+        
+        .flashcard-back {
+            background: #f9f9f9;
+            border: 2px solid #4CAF50;
+            transform: rotateY(180deg);
+        }
+        
+        .question {
+            font-size: 1.4rem;
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .answer {
+            font-size: 1.1rem;
+            text-align: center;
+            color: #555;
+            line-height: 1.5;
+        }
+        
+        .hint {
+            color: #888;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .prev-btn {
+            background: #f5f5f5;
+            color: #333;
+        }
+        
+        .prev-btn:hover {
+            background: #e0e0e0;
+        }
+        
+        .flip-btn {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .flip-btn:hover {
+            background: #1976D2;
+        }
+        
+        .next-btn {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .next-btn:hover {
+            background: #388E3C;
+        }
+        
+        .card-counter {
+            text-align: center;
+            margin-top: 15px;
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Flash Cards - JavaScript</h1>
+        <p class="subtitle">Aprende conceptos de JavaScript</p>
+        
+        <div class="progress-container">
+            <span class="progress-text">Progreso: 25%</span>
+            <div class="progress-bar">
+                <div class="progress-fill"></div>
+            </div>
+            <span class="card-count">5 de 20</span>
+        </div>
+        
+        <div class="flashcard-container">
+            <div class="flashcard" id="flashcard">
+                <div class="flashcard-front">
+                    <div class="question">¿Cuál es la diferencia entre var, let y const?</div>
+                    <p class="hint">Haz clic en la tarjeta o en el botón "Mostrar Respuesta" para voltear</p>
+                </div>
+                <div class="flashcard-back">
+                    <div class="answer">
+                        En JavaScript, var tiene alcance de función y puede ser redeclarado; let y const tienen alcance de bloque, con let permitiendo reasignación y const evitándola. Sin embargo, los objetos const pueden tener sus contenidos modificados.
+                    </div>
+                    <p class="hint">Haz clic en la tarjeta o en el botón "Ocultar Respuesta" para voltear</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="prev-btn" id="prevBtn">Anterior</button>
+            <button class="flip-btn" id="flipBtn">Mostrar Respuesta</button>
+            <button class="next-btn" id="nextBtn">Siguiente</button>
+        </div>
+        
+        <div class="card-counter">
+            Tarjeta <span id="currentCard">1</span> de <span id="totalCards">5</span>
+        </div>
+    </div>
+
+    <script>
+        // Datos de las tarjetas flash
+        const flashcards = [
+            {
+                question: "¿Cuál es la diferencia entre var, let y const?",
+                answer: "En JavaScript, var tiene alcance de función y puede ser redeclarado; let y const tienen alcance de bloque, con let permitiendo reasignación y const evitándola. Sin embargo, los objetos const pueden tener sus contenidos modificados."
+            },
+            {
+                question: "¿Qué es el hoisting en JavaScript?",
+                answer: "El hoisting es un comportamiento de JavaScript donde las declaraciones de variables y funciones se mueven al principio de su contexto de ejecución antes de que se ejecute el código."
+            },
+            {
+                question: "¿Qué es una clausura (closure) en JavaScript?",
+                answer: "Una clausura es una función que tiene acceso a variables de su ámbito externo incluso después de que la función externa haya terminado de ejecutarse."
+            },
+            {
+                question: "¿Qué es el event loop en JavaScript?",
+                answer: "El event loop es un mecanismo que permite a JavaScript manejar operaciones asíncronas ejecutando el código, recogiendo y procesando eventos, y ejecutando subtareas en cola."
+            },
+            {
+                question: "¿Cuál es la diferencia entre == y === en JavaScript?",
+                answer: "== realiza una comparación de igualdad con conversión de tipo (coerción), mientras que === realiza una comparación de igualdad estricta sin conversión de tipo."
+            }
+        ];
+
+        // Elementos del DOM
+        const flashcardElement = document.getElementById('flashcard');
+        const flipBtn = document.getElementById('flipBtn');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        const currentCardElement = document.getElementById('currentCard');
+        const totalCardsElement = document.getElementById('totalCards');
+        const questionElement = document.querySelector('.question');
+        const answerElement = document.querySelector('.answer');
+        const progressFill = document.querySelector('.progress-fill');
+        const progressText = document.querySelector('.progress-text');
+        const cardCount = document.querySelector('.card-count');
+
+        // Estado de la aplicación
+        let currentCardIndex = 0;
+        const totalCards = flashcards.length;
+
+        // Inicializar la aplicación
+        function init() {
+            totalCardsElement.textContent = totalCards;
+            updateCard();
+            updateProgress();
+        }
+
+        // Actualizar la tarjeta actual
+        function updateCard() {
+            const currentCard = flashcards[currentCardIndex];
+            questionElement.textContent = currentCard.question;
+            answerElement.textContent = currentCard.answer;
+            currentCardElement.textContent = currentCardIndex + 1;
+            
+            // Asegurarse de que la tarjeta esté en el frente
+            flashcardElement.classList.remove('flipped');
+            flipBtn.textContent = 'Mostrar Respuesta';
+        }
+
+        // Actualizar la barra de progreso
+        function updateProgress() {
+            const progress = ((currentCardIndex + 1) / totalCards) * 100;
+            progressFill.style.width = `${progress}%`;
+            progressText.textContent = `Progreso: ${Math.round(progress)}%`;
+            cardCount.textContent = `${currentCardIndex + 1} de ${totalCards}`;
+        }
+
+        // Voltear la tarjeta
+        function flipCard() {
+            flashcardElement.classList.toggle('flipped');
+            if (flashcardElement.classList.contains('flipped')) {
+                flipBtn.textContent = 'Ocultar Respuesta';
+            } else {
+                flipBtn.textContent = 'Mostrar Respuesta';
+            }
+        }
+
+        // Ir a la tarjeta anterior
+        function goToPrevCard() {
+            if (currentCardIndex > 0) {
+                currentCardIndex--;
+                updateCard();
+                updateProgress();
+            }
+        }
+
+        // Ir a la siguiente tarjeta
+        function goToNextCard() {
+            if (currentCardIndex < totalCards - 1) {
+                currentCardIndex++;
+                updateCard();
+                updateProgress();
+            }
+        }
+
+        // Event listeners
+        flashcardElement.addEventListener('click', flipCard);
+        flipBtn.addEventListener('click', flipCard);
+        prevBtn.addEventListener('click', goToPrevCard);
+        nextBtn.addEventListener('click', goToNextCard);
+
+        // Inicializar la aplicación
+        init();
+    </script>
+</body>
+</html>
